@@ -1,0 +1,2792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Café Noir – Where Every Sip Tells a Story</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================================
+       CSS CUSTOM PROPERTIES
+    ============================================================ */
+    :root {
+      --black:       #0a0705;
+      --espresso:    #1a1008;
+      --roast:       #2b1a0e;
+      --mahogany:    #4a2c1a;
+      --caramel:     #8b5e3c;
+      --amber:       #c4843a;
+      --gold:        #d4a853;
+      --cream:       #f0e6d3;
+      --latte:       #e8d5b7;
+      --white:       #faf7f2;
+      --glass:       rgba(26,16,8,0.72);
+      --glass-light: rgba(240,230,211,0.08);
+
+      --ff-display:  'Playfair Display', Georgia, serif;
+      --ff-body:     'Cormorant Garamond', Georgia, serif;
+      --ff-ui:       'Jost', sans-serif;
+
+      --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-inout:  cubic-bezier(0.76, 0, 0.24, 1);
+      --dur-fast:    0.3s;
+      --dur-mid:     0.6s;
+      --dur-slow:    1s;
+
+      --nav-h:       72px;
+      --section-pad: clamp(80px, 10vw, 140px);
+    }
+
+    /* ============================================================
+       RESET + BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+      background: var(--black);
+      color: var(--cream);
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: var(--ff-body);
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    body.loading { overflow: hidden; }
+
+    img { display: block; width: 100%; object-fit: cover; }
+    a   { color: inherit; text-decoration: none; }
+    ul  { list-style: none; }
+
+    ::selection { background: var(--amber); color: var(--black); }
+
+    /* ============================================================
+       CUSTOM CURSOR
+    ============================================================ */
+    #cursor-dot,
+    #cursor-ring {
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%,-50%);
+      border-radius: 50%;
+      transition: opacity 0.3s;
+    }
+
+    #cursor-dot {
+      width: 8px; height: 8px;
+      background: var(--amber);
+    }
+
+    #cursor-ring {
+      width: 36px; height: 36px;
+      border: 1.5px solid rgba(196,132,58,0.55);
+      transition: width 0.25s var(--ease-out),
+                  height 0.25s var(--ease-out),
+                  border-color 0.25s;
+    }
+
+    body:has(a:hover) #cursor-ring,
+    body:has(button:hover) #cursor-ring {
+      width: 56px; height: 56px;
+      border-color: var(--amber);
+    }
+
+    /* ============================================================
+       PRELOADER
+    ============================================================ */
+    #preloader {
+      position: fixed; inset: 0;
+      background: var(--black);
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      transition: opacity 0.8s var(--ease-out), visibility 0.8s;
+    }
+
+    #preloader.done {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .preloader-logo {
+      font-family: var(--ff-display);
+      font-size: clamp(2rem, 6vw, 4rem);
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      opacity: 0;
+      animation: fadeUp 0.9s var(--ease-out) 0.3s forwards;
+    }
+
+    .preloader-bar-wrap {
+      width: clamp(160px, 30vw, 260px);
+      height: 1px;
+      background: rgba(212,168,83,0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .preloader-bar {
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      animation: barSlide 1.8s var(--ease-inout) 0.5s forwards;
+    }
+
+    .preloader-tagline {
+      font-family: var(--ff-ui);
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--caramel);
+      opacity: 0;
+      animation: fadeUp 0.9s var(--ease-out) 0.7s forwards;
+    }
+
+    @keyframes barSlide  { to { left: 100%; } }
+    @keyframes fadeUp    { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
+    @keyframes fadeDown  { from { opacity:0; transform:translateY(-18px); } to { opacity:1; transform:none; } }
+    @keyframes fadeIn    { from { opacity:0; } to { opacity:1; } }
+    @keyframes scaleIn   { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:scale(1); } }
+    @keyframes slideLeft { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:none; } }
+    @keyframes slideRight{ from { opacity:0; transform:translateX(-40px); } to { opacity:1; transform:none; } }
+    @keyframes float     { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-12px); } }
+    @keyframes rotate    { to { transform:rotate(360deg); } }
+    @keyframes shimmer   { 0%,100%{ background-position:200% center; } }
+    @keyframes pulse     { 0%,100%{ box-shadow:0 0 0 0 rgba(196,132,58,0.5); } 50%{ box-shadow:0 0 0 14px rgba(196,132,58,0); } }
+
+    /* ============================================================
+       SCROLL-REVEAL (JS-driven class)
+    ============================================================ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+    }
+    .reveal.up     { transform: translateY(36px); }
+    .reveal.left   { transform: translateX(-40px); }
+    .reveal.right  { transform: translateX(40px); }
+    .reveal.scale  { transform: scale(0.92); }
+    .reveal.active {
+      opacity: 1;
+      transform: none !important;
+    }
+
+    /* delay helpers */
+    .d1 { transition-delay: 0.1s; }
+    .d2 { transition-delay: 0.2s; }
+    .d3 { transition-delay: 0.3s; }
+    .d4 { transition-delay: 0.4s; }
+    .d5 { transition-delay: 0.5s; }
+    .d6 { transition-delay: 0.6s; }
+
+    /* ============================================================
+       NAVIGATION
+    ============================================================ */
+    #nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 500;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 clamp(20px, 5vw, 60px);
+      transition: background 0.5s, backdrop-filter 0.5s, box-shadow 0.5s;
+    }
+
+    #nav.scrolled {
+      background: var(--glass);
+      backdrop-filter: blur(24px);
+      box-shadow: 0 1px 0 rgba(212,168,83,0.12);
+    }
+
+    .nav-logo {
+      font-family: var(--ff-display);
+      font-size: 1.5rem;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .nav-logo span { font-style: italic; color: var(--amber); }
+
+    .nav-links {
+      display: flex;
+      gap: clamp(20px, 3vw, 40px);
+      margin: 0 auto;
+    }
+
+    .nav-links a {
+      font-family: var(--ff-ui);
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--latte);
+      position: relative;
+      padding-bottom: 4px;
+      transition: color var(--dur-fast);
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 1px;
+      background: var(--amber);
+      transition: width var(--dur-mid) var(--ease-out);
+    }
+
+    .nav-links a:hover { color: var(--gold); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-cta {
+      font-family: var(--ff-ui);
+      font-size: 0.7rem;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      background: transparent;
+      border: 1px solid var(--amber);
+      color: var(--amber);
+      padding: 10px 24px;
+      border-radius: 2px;
+      cursor: none;
+      transition: background var(--dur-fast), color var(--dur-fast);
+    }
+
+    .nav-cta:hover {
+      background: var(--amber);
+      color: var(--black);
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: none;
+      margin-left: 20px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 24px; height: 1.5px;
+      background: var(--cream);
+      transition: transform 0.3s, opacity 0.3s;
+    }
+
+    /* ============================================================
+       MOBILE MENU
+    ============================================================ */
+    #mobile-menu {
+      position: fixed;
+      inset: 0;
+      background: var(--espresso);
+      z-index: 490;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s var(--ease-out), visibility 0.4s;
+    }
+
+    #mobile-menu.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    #mobile-menu a {
+      font-family: var(--ff-display);
+      font-size: clamp(2rem, 6vw, 3rem);
+      color: var(--cream);
+      transition: color 0.2s;
+    }
+
+    #mobile-menu a:hover { color: var(--gold); }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    #hero {
+      position: relative;
+      height: 100vh;
+      min-height: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: -5%;
+      background:
+        radial-gradient(ellipse 80% 60% at 60% 40%, rgba(139,94,60,0.25) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 80% at 20% 80%, rgba(74,44,26,0.4) 0%, transparent 60%),
+        url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1600&q=80') center/cover no-repeat;
+      animation: heroZoom 18s ease-in-out infinite alternate;
+      filter: brightness(0.45);
+    }
+
+    @keyframes heroZoom {
+      from { transform: scale(1) translate(0,0); }
+      to   { transform: scale(1.06) translate(-1%, 1%); }
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(10,7,5,0.1) 0%,
+        rgba(10,7,5,0.3) 50%,
+        rgba(10,7,5,0.85) 100%
+      );
+    }
+
+    .hero-grain {
+      position: absolute;
+      inset: 0;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 860px;
+      padding: 0 20px;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--ff-ui);
+      font-size: 0.68rem;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeDown 0.9s var(--ease-out) 2.5s forwards;
+    }
+
+    .hero-title {
+      font-family: var(--ff-display);
+      font-size: clamp(3.2rem, 9vw, 7.5rem);
+      font-weight: 700;
+      line-height: 1.0;
+      color: var(--white);
+      letter-spacing: -0.01em;
+      opacity: 0;
+      animation: scaleIn 1.1s var(--ease-out) 2.7s forwards;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      margin-top: 20px;
+      font-family: var(--ff-body);
+      font-size: clamp(1rem, 2.2vw, 1.3rem);
+      font-weight: 300;
+      color: var(--latte);
+      letter-spacing: 0.05em;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+      opacity: 0;
+      animation: fadeUp 0.9s var(--ease-out) 3s forwards;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 44px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.9s var(--ease-out) 3.2s forwards;
+    }
+
+    .btn-primary {
+      font-family: var(--ff-ui);
+      font-size: 0.72rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      background: var(--amber);
+      color: var(--black);
+      padding: 16px 40px;
+      border: none;
+      border-radius: 2px;
+      cursor: none;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s var(--ease-out), box-shadow 0.3s;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s var(--ease-out);
+    }
+
+    .btn-primary:hover::before { transform: scaleX(1); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(196,132,58,0.4); }
+    .btn-primary span { position: relative; z-index: 1; }
+
+    .btn-outline {
+      font-family: var(--ff-ui);
+      font-size: 0.72rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--cream);
+      padding: 16px 40px;
+      border: 1px solid rgba(240,230,211,0.35);
+      border-radius: 2px;
+      cursor: none;
+      transition: border-color 0.3s, color 0.3s, transform 0.3s var(--ease-out);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--amber);
+      color: var(--amber);
+      transform: translateY(-2px);
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      animation: fadeIn 1s 3.6s forwards;
+    }
+
+    .hero-scroll span {
+      font-family: var(--ff-ui);
+      font-size: 0.6rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: rgba(240,230,211,0.4);
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, rgba(240,230,211,0.4), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%,100% { opacity:0.4; transform:scaleY(1); }
+      50% { opacity:1; transform:scaleY(1.15); }
+    }
+
+    .hero-badge {
+      position: absolute;
+      bottom: 48px;
+      right: clamp(20px, 5vw, 60px);
+      opacity: 0;
+      animation: fadeIn 1s 3.8s forwards;
+    }
+
+    .hero-badge-inner {
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      border: 1px solid rgba(212,168,83,0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .hero-badge-inner strong {
+      font-family: var(--ff-display);
+      font-size: 1.1rem;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .hero-badge-inner small {
+      font-family: var(--ff-ui);
+      font-size: 0.5rem;
+      letter-spacing: 0.15em;
+      color: var(--caramel);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ============================================================
+       SECTION COMMON
+    ============================================================ */
+    section { padding: var(--section-pad) clamp(20px, 6vw, 80px); }
+
+    .section-tag {
+      font-family: var(--ff-ui);
+      font-size: 0.65rem;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-family: var(--ff-display);
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--cream);
+    }
+
+    .section-title em { font-style: italic; color: var(--gold); }
+
+    .section-divider {
+      width: 48px;
+      height: 1px;
+      background: linear-gradient(to right, var(--amber), transparent);
+      margin: 20px 0 32px;
+    }
+
+    .section-body {
+      font-size: clamp(1rem, 1.6vw, 1.15rem);
+      color: rgba(240,230,211,0.65);
+      font-weight: 300;
+      max-width: 56ch;
+    }
+
+    /* ============================================================
+       MARQUEE TICKER
+    ============================================================ */
+    .marquee-wrap {
+      background: var(--amber);
+      overflow: hidden;
+      padding: 14px 0;
+      position: relative;
+    }
+
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: marquee 30s linear infinite;
+    }
+
+    .marquee-track:hover { animation-play-state: paused; }
+
+    .marquee-item {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      padding: 0 40px;
+      font-family: var(--ff-ui);
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--black);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .marquee-dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--roast);
+      flex-shrink: 0;
+    }
+
+    @keyframes marquee { to { transform: translateX(-50%); } }
+
+    /* ============================================================
+       MENU
+    ============================================================ */
+    #menu { background: var(--espresso); }
+
+    .menu-header { text-align: center; margin-bottom: 56px; }
+
+    .menu-tabs {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      margin-bottom: 52px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      font-family: var(--ff-ui);
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      background: transparent;
+      border: 1px solid rgba(196,132,58,0.25);
+      color: var(--caramel);
+      padding: 11px 28px;
+      border-radius: 2px;
+      cursor: none;
+      transition: all 0.3s var(--ease-out);
+    }
+
+    .tab-btn.active,
+    .tab-btn:hover {
+      background: var(--amber);
+      border-color: var(--amber);
+      color: var(--black);
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .menu-card {
+      background: linear-gradient(135deg, var(--roast) 0%, rgba(26,16,8,0.95) 100%);
+      border: 1px solid rgba(196,132,58,0.12);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      cursor: none;
+      transition: transform 0.4s var(--ease-out), box-shadow 0.4s, border-color 0.4s;
+      display: none;
+    }
+
+    .menu-card.active { display: block; }
+
+    .menu-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(196,132,58,0.25);
+      border-color: rgba(196,132,58,0.3);
+    }
+
+    .menu-card-img {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+    }
+
+    .menu-card-img img {
+      height: 100%;
+      transition: transform 0.6s var(--ease-out), filter 0.6s;
+    }
+
+    .menu-card:hover .menu-card-img img {
+      transform: scale(1.08);
+      filter: brightness(1.1) saturate(1.2);
+    }
+
+    .menu-card-badge {
+      position: absolute;
+      top: 12px; right: 12px;
+      background: var(--amber);
+      color: var(--black);
+      font-family: var(--ff-ui);
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 2px;
+    }
+
+    .menu-card-body {
+      padding: 22px 24px 28px;
+    }
+
+    .menu-card-name {
+      font-family: var(--ff-display);
+      font-size: 1.2rem;
+      color: var(--cream);
+      margin-bottom: 8px;
+    }
+
+    .menu-card-desc {
+      font-size: 0.88rem;
+      color: rgba(240,230,211,0.5);
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+
+    .menu-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .menu-price {
+      font-family: var(--ff-display);
+      font-size: 1.4rem;
+      color: var(--gold);
+    }
+
+    .menu-add-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(196,132,58,0.4);
+      background: transparent;
+      color: var(--amber);
+      font-size: 1.3rem;
+      cursor: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s var(--ease-out);
+    }
+
+    .menu-add-btn:hover {
+      background: var(--amber);
+      color: var(--black);
+      border-color: var(--amber);
+      transform: rotate(90deg) scale(1.1);
+    }
+
+    /* ============================================================
+       ABOUT / STORY
+    ============================================================ */
+    #about {
+      background: var(--black);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #about::before {
+      content: '';
+      position: absolute;
+      top: -200px; right: -200px;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(139,94,60,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 7vw, 100px);
+      align-items: center;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .about-visual {
+      position: relative;
+    }
+
+    .about-img-main {
+      border-radius: 4px;
+      height: clamp(350px, 55vw, 580px);
+      overflow: hidden;
+    }
+
+    .about-img-main img {
+      height: 100%;
+      transition: transform 8s var(--ease-out);
+    }
+
+    .about-img-main:hover img { transform: scale(1.04); }
+
+    .about-img-float {
+      position: absolute;
+      bottom: -32px; right: -32px;
+      width: 44%;
+      height: 220px;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 3px solid var(--espresso);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .about-img-float img { height: 100%; }
+
+    .about-years {
+      position: absolute;
+      top: -24px; left: -24px;
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      background: var(--amber);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      animation: float 5s ease-in-out infinite;
+    }
+
+    .about-years strong {
+      font-family: var(--ff-display);
+      font-size: 2rem;
+      color: var(--black);
+      line-height: 1;
+    }
+
+    .about-years span {
+      font-family: var(--ff-ui);
+      font-size: 0.5rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(10,7,5,0.7);
+    }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 48px;
+      padding-top: 36px;
+      border-top: 1px solid rgba(196,132,58,0.15);
+    }
+
+    .stat-item { text-align: center; }
+
+    .stat-num {
+      font-family: var(--ff-display);
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      color: var(--gold);
+      display: block;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-family: var(--ff-ui);
+      font-size: 0.62rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(196,132,58,0.55);
+      margin-top: 6px;
+      display: block;
+    }
+
+    .about-quote {
+      margin-top: 32px;
+      padding: 24px;
+      border-left: 2px solid var(--amber);
+      background: rgba(196,132,58,0.05);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .about-quote p {
+      font-family: var(--ff-display);
+      font-size: 1.15rem;
+      font-style: italic;
+      color: var(--latte);
+      line-height: 1.7;
+    }
+
+    .about-quote cite {
+      display: block;
+      margin-top: 10px;
+      font-family: var(--ff-ui);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      font-style: normal;
+    }
+
+    /* ============================================================
+       GALLERY
+    ============================================================ */
+    #gallery { background: var(--roast); }
+
+    .gallery-header { text-align: center; margin-bottom: 52px; }
+
+    .masonry-grid {
+      columns: 4;
+      column-gap: 14px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .masonry-item {
+      break-inside: avoid;
+      margin-bottom: 14px;
+      overflow: hidden;
+      border-radius: 4px;
+      position: relative;
+      cursor: none;
+    }
+
+    .masonry-item img {
+      display: block;
+      transition: transform 0.6s var(--ease-out), filter 0.6s;
+    }
+
+    .masonry-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(26,16,8,0.6);
+      opacity: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.4s;
+    }
+
+    .masonry-overlay svg {
+      width: 40px; height: 40px;
+      stroke: var(--cream);
+      fill: none;
+    }
+
+    .masonry-item:hover img {
+      transform: scale(1.07);
+      filter: brightness(0.8);
+    }
+
+    .masonry-item:hover .masonry-overlay { opacity: 1; }
+
+    /* Carousel */
+    .carousel-wrap {
+      margin-top: 52px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .carousel-track {
+      display: flex;
+      gap: 20px;
+      transition: transform 0.6s var(--ease-out);
+    }
+
+    .carousel-slide {
+      flex-shrink: 0;
+      width: calc(33.33% - 14px);
+      height: 280px;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .carousel-slide img { height: 100%; }
+
+    .carousel-btns {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 28px;
+    }
+
+    .carousel-btn {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(196,132,58,0.3);
+      background: transparent;
+      color: var(--amber);
+      cursor: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s var(--ease-out);
+      font-size: 1.1rem;
+    }
+
+    .carousel-btn:hover {
+      background: var(--amber);
+      color: var(--black);
+      border-color: var(--amber);
+    }
+
+    /* ============================================================
+       OFFERS
+    ============================================================ */
+    #offers { background: var(--black); }
+
+    .offers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      max-width: 1280px;
+      margin: 48px auto 0;
+    }
+
+    .offer-card {
+      position: relative;
+      border-radius: 4px;
+      overflow: hidden;
+      padding: 40px 32px;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      cursor: none;
+      border: 1px solid rgba(196,132,58,0.1);
+      transition: transform 0.4s var(--ease-out), box-shadow 0.4s;
+    }
+
+    .offer-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    }
+
+    .offer-card-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.6s var(--ease-out);
+      filter: brightness(0.35);
+    }
+
+    .offer-card:hover .offer-card-bg { transform: scale(1.05); }
+
+    .offer-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10,7,5,0.95) 0%, transparent 60%);
+    }
+
+    .offer-card-content { position: relative; z-index: 2; }
+
+    .offer-tag {
+      display: inline-block;
+      font-family: var(--ff-ui);
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      background: var(--amber);
+      color: var(--black);
+      padding: 4px 12px;
+      border-radius: 2px;
+      margin-bottom: 14px;
+    }
+
+    .offer-title {
+      font-family: var(--ff-display);
+      font-size: clamp(1.4rem, 3vw, 1.9rem);
+      color: var(--cream);
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+
+    .offer-desc {
+      font-size: 0.9rem;
+      color: rgba(240,230,211,0.55);
+      margin-bottom: 20px;
+    }
+
+    .offer-price {
+      font-family: var(--ff-display);
+      font-size: 1.5rem;
+      color: var(--gold);
+    }
+
+    .offer-price del {
+      font-size: 0.9rem;
+      color: var(--caramel);
+      margin-right: 8px;
+    }
+
+    /* ============================================================
+       TESTIMONIALS
+    ============================================================ */
+    #testimonials {
+      background: var(--espresso);
+      text-align: center;
+    }
+
+    .stars {
+      color: var(--gold);
+      font-size: 1rem;
+      letter-spacing: 4px;
+      margin-bottom: 8px;
+    }
+
+    .testi-carousel {
+      position: relative;
+      max-width: 780px;
+      margin: 52px auto 0;
+      overflow: hidden;
+    }
+
+    .testi-track {
+      display: flex;
+      transition: transform 0.6s var(--ease-out);
+    }
+
+    .testi-slide {
+      flex-shrink: 0;
+      width: 100%;
+      padding: 0 20px;
+    }
+
+    .testi-quote {
+      font-family: var(--ff-display);
+      font-size: clamp(1.15rem, 2.5vw, 1.55rem);
+      font-style: italic;
+      color: var(--latte);
+      line-height: 1.75;
+      margin-bottom: 28px;
+    }
+
+    .testi-author {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .testi-avatar {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--amber);
+      margin-bottom: 4px;
+    }
+
+    .testi-name {
+      font-family: var(--ff-ui);
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+
+    .testi-role {
+      font-family: var(--ff-body);
+      font-size: 0.85rem;
+      color: rgba(196,132,58,0.5);
+    }
+
+    .testi-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 32px;
+    }
+
+    .testi-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(196,132,58,0.25);
+      cursor: none;
+      transition: all 0.3s var(--ease-out);
+    }
+
+    .testi-dot.active {
+      background: var(--amber);
+      width: 24px;
+      border-radius: 3px;
+    }
+
+    /* ============================================================
+       INSTAGRAM
+    ============================================================ */
+    #instagram { background: var(--black); }
+
+    .insta-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      flex-wrap: gap;
+    }
+
+    .insta-handle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--ff-ui);
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      color: var(--amber);
+    }
+
+    .insta-handle svg {
+      width: 28px; height: 28px;
+    }
+
+    .insta-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+    }
+
+    .insta-item {
+      aspect-ratio: 1;
+      overflow: hidden;
+      border-radius: 3px;
+      position: relative;
+      cursor: none;
+    }
+
+    .insta-item img {
+      height: 100%;
+      transition: transform 0.5s var(--ease-out);
+    }
+
+    .insta-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(26,16,8,0.65);
+      opacity: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      transition: opacity 0.3s;
+      font-family: var(--ff-ui);
+      font-size: 0.7rem;
+      color: var(--cream);
+    }
+
+    .insta-item:hover img { transform: scale(1.08); }
+    .insta-item:hover .insta-overlay { opacity: 1; }
+
+    /* ============================================================
+       CONTACT
+    ============================================================ */
+    #contact { background: var(--roast); }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 6vw, 80px);
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .contact-info { padding-top: 12px; }
+
+    .contact-item {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      margin-bottom: 32px;
+    }
+
+    .contact-icon {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: rgba(196,132,58,0.1);
+      border: 1px solid rgba(196,132,58,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--amber);
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+
+    .contact-label {
+      font-family: var(--ff-ui);
+      font-size: 0.62rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 4px;
+    }
+
+    .contact-text {
+      font-family: var(--ff-body);
+      font-size: 1rem;
+      color: var(--latte);
+      line-height: 1.6;
+    }
+
+    .contact-text a { transition: color 0.2s; }
+    .contact-text a:hover { color: var(--amber); }
+
+    .map-wrap {
+      border-radius: 4px;
+      overflow: hidden;
+      height: 420px;
+      border: 1px solid rgba(196,132,58,0.12);
+      position: relative;
+    }
+
+    .map-wrap iframe {
+      width: 100%;
+      height: 100%;
+      filter: sepia(0.5) invert(0.85) hue-rotate(185deg) brightness(0.85);
+      border: none;
+    }
+
+    /* FORM */
+    .contact-form { margin-top: 36px; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      font-family: var(--ff-ui);
+      font-size: 0.62rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(196,132,58,0.7);
+    }
+
+    .form-group input,
+    .form-group textarea {
+      background: rgba(10,7,5,0.5);
+      border: 1px solid rgba(196,132,58,0.2);
+      border-radius: 3px;
+      padding: 13px 16px;
+      color: var(--cream);
+      font-family: var(--ff-body);
+      font-size: 0.95rem;
+      outline: none;
+      resize: none;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(196,132,58,0.3); }
+
+    .form-group input:focus,
+    .form-group textarea:focus { border-color: var(--amber); }
+
+    .form-submit {
+      width: 100%;
+      padding: 16px;
+      background: var(--amber);
+      border: none;
+      border-radius: 3px;
+      color: var(--black);
+      font-family: var(--ff-ui);
+      font-size: 0.72rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      font-weight: 500;
+      cursor: none;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s var(--ease-out), box-shadow 0.3s;
+    }
+
+    .form-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(196,132,58,0.4);
+    }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      background: var(--black);
+      padding: clamp(56px, 7vw, 90px) clamp(20px, 6vw, 80px) 32px;
+      border-top: 1px solid rgba(196,132,58,0.1);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 52px;
+      margin-bottom: 56px;
+    }
+
+    .footer-brand-logo {
+      font-family: var(--ff-display);
+      font-size: 2rem;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .footer-brand-logo span { font-style: italic; color: var(--amber); }
+
+    .footer-about {
+      font-size: 0.9rem;
+      color: rgba(240,230,211,0.45);
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+
+    .footer-socials {
+      display: flex;
+      gap: 12px;
+    }
+
+    .social-link {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      border: 1px solid rgba(196,132,58,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--caramel);
+      font-size: 0.85rem;
+      transition: all 0.3s var(--ease-out);
+    }
+
+    .social-link:hover {
+      background: var(--amber);
+      border-color: var(--amber);
+      color: var(--black);
+      transform: translateY(-3px);
+    }
+
+    .footer-col-title {
+      font-family: var(--ff-ui);
+      font-size: 0.65rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 20px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      font-size: 0.9rem;
+      color: rgba(240,230,211,0.45);
+      transition: color 0.2s, padding-left 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--cream);
+      padding-left: 8px;
+    }
+
+    .footer-hours-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 0.88rem;
+    }
+
+    .footer-hours-item .day { color: rgba(240,230,211,0.4); }
+    .footer-hours-item .time { color: var(--amber); font-weight: 400; }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 28px;
+      border-top: 1px solid rgba(196,132,58,0.08);
+      font-family: var(--ff-ui);
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: rgba(196,132,58,0.35);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* ============================================================
+       FLOATING BUTTONS
+    ============================================================ */
+    .float-wrap {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      z-index: 400;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .float-btn {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      border: none;
+      cursor: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.4);
+      transition: transform 0.3s var(--ease-out), box-shadow 0.3s;
+    }
+
+    .float-btn:hover {
+      transform: scale(1.12) translateY(-3px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+    }
+
+    .float-whatsapp { background: #25D366; color: #fff; animation: pulse 3s ease-in-out infinite; }
+    .float-scroll-top { background: var(--amber); color: var(--black); opacity: 0; transition: opacity 0.3s, transform 0.3s var(--ease-out); }
+    .float-scroll-top.show { opacity: 1; }
+
+    /* ============================================================
+       LIGHTBOX
+    ============================================================ */
+    #lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,7,5,0.95);
+      z-index: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s, visibility 0.4s;
+    }
+
+    #lightbox.open { opacity: 1; visibility: visible; }
+
+    #lightbox img {
+      max-width: 90vw;
+      max-height: 88vh;
+      object-fit: contain;
+      border-radius: 4px;
+      box-shadow: 0 30px 100px rgba(0,0,0,0.7);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 24px; right: 24px;
+      background: rgba(196,132,58,0.15);
+      border: 1px solid rgba(196,132,58,0.3);
+      color: var(--amber);
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: none;
+      font-size: 1.2rem;
+      transition: all 0.25s;
+    }
+
+    .lightbox-close:hover { background: var(--amber); color: var(--black); }
+
+    /* ============================================================
+       PARALLAX QUOTE STRIP
+    ============================================================ */
+    .parallax-strip {
+      position: relative;
+      height: 340px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .parallax-strip-bg {
+      position: absolute;
+      inset: -15%;
+      background: url('https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=1600&q=80') center/cover no-repeat;
+      filter: brightness(0.28);
+    }
+
+    .parallax-strip-overlay {
+      position: absolute; inset: 0;
+      background: rgba(26,16,8,0.5);
+    }
+
+    .parallax-strip-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 clamp(20px, 8vw, 100px);
+    }
+
+    .parallax-strip-content blockquote {
+      font-family: var(--ff-display);
+      font-size: clamp(1.4rem, 3.5vw, 2.4rem);
+      font-style: italic;
+      color: var(--latte);
+      line-height: 1.55;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .parallax-strip-content cite {
+      display: block;
+      margin-top: 20px;
+      font-family: var(--ff-ui);
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--amber);
+      font-style: normal;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 1100px) {
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .insta-grid  { grid-template-columns: repeat(4, 1fr); }
+      .masonry-grid{ columns: 3; }
+      .carousel-slide { width: calc(50% - 10px); }
+    }
+
+    @media (max-width: 860px) {
+      .about-grid    { grid-template-columns: 1fr; }
+      .contact-grid  { grid-template-columns: 1fr; }
+      .about-img-float { display: none; }
+      .nav-links     { display: none; }
+      .hamburger     { display: flex; margin-left: auto; }
+      .nav-cta       { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .masonry-grid  { columns: 2; }
+      .insta-grid    { grid-template-columns: repeat(3, 1fr); }
+      .footer-grid   { grid-template-columns: 1fr; }
+      .carousel-slide{ width: calc(100%); }
+      .form-row      { grid-template-columns: 1fr; }
+      .about-stats   { grid-template-columns: repeat(3,1fr); gap: 12px; }
+    }
+
+    /* ============================================================
+       NOISE TEXTURE OVERLAY (global)
+    ============================================================ */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9000;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ============================================================
+       TOAST NOTIFICATION
+    ============================================================ */
+    #toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--amber);
+      color: var(--black);
+      padding: 12px 28px;
+      border-radius: 3px;
+      font-family: var(--ff-ui);
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s var(--ease-out);
+      z-index: 600;
+      pointer-events: none;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body class="loading">
+
+<!-- ============================================================
+     CUSTOM CURSOR
+============================================================ -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- ============================================================
+     PRELOADER
+============================================================ -->
+<div id="preloader">
+  <div class="preloader-logo">Café <span>Noir</span></div>
+  <div class="preloader-bar-wrap"><div class="preloader-bar"></div></div>
+  <div class="preloader-tagline">Crafting Moments, One Sip at a Time</div>
+</div>
+
+<!-- ============================================================
+     NAVIGATION
+============================================================ -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">Café <span>Noir</span></a>
+  <ul class="nav-links">
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#about">Our Story</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#offers">Offers</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+    <li><a href="#contact">Visit Us</a></li>
+  </ul>
+  <a href="tel:+911234567890" class="nav-cta">Reserve a Table</a>
+  <div class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div id="mobile-menu">
+  <a href="#menu"   onclick="closeMobile()">Menu</a>
+  <a href="#about"  onclick="closeMobile()">Our Story</a>
+  <a href="#gallery" onclick="closeMobile()">Gallery</a>
+  <a href="#offers"  onclick="closeMobile()">Offers</a>
+  <a href="#contact" onclick="closeMobile()">Visit Us</a>
+</div>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-grain"></div>
+
+  <div class="hero-content">
+    <p class="hero-eyebrow">&#x2605; Est. 2019 &nbsp;·&nbsp; New Delhi &nbsp;·&nbsp; Specialty Coffee</p>
+    <h1 class="hero-title">Where Every<br /><em>Sip</em> Tells<br />a Story</h1>
+    <p class="hero-sub">Hand-crafted brews, artisan pastries, and a sanctuary of warmth in the heart of the city.</p>
+    <div class="hero-actions">
+      <a href="#menu" class="btn-primary"><span>Explore Menu</span></a>
+      <a href="#contact" class="btn-outline">Visit Us</a>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+
+  <div class="hero-badge">
+    <div class="hero-badge-inner">
+      <strong>4.9</strong>
+      <small>★★★★★<br/>Google</small>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     MARQUEE
+============================================================ -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marqueeTrack">
+    <!-- JS duplicates these items for seamless looping -->
+    <div class="marquee-item">Specialty Coffee <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Artisan Pastries <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Live Music Fridays <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Single Origin Beans <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Open 10 AM – 10 PM <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Free Wi-Fi <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Vegan Friendly <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Happy Hours 3–5 PM <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Specialty Coffee <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Artisan Pastries <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Live Music Fridays <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Single Origin Beans <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Open 10 AM – 10 PM <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Free Wi-Fi <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Vegan Friendly <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Happy Hours 3–5 PM <span class="marquee-dot"></span></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MENU
+============================================================ -->
+<section id="menu">
+  <div class="menu-header">
+    <p class="section-tag reveal">Our Craft</p>
+    <h2 class="section-title reveal d1">The <em>Menu</em></h2>
+    <div class="section-divider reveal d2" style="margin:20px auto 0;"></div>
+  </div>
+
+  <div class="menu-tabs reveal d2">
+    <button class="tab-btn active" data-tab="coffee">☕ Coffee</button>
+    <button class="tab-btn" data-tab="desserts">🍰 Desserts</button>
+    <button class="tab-btn" data-tab="snacks">🥐 Snacks</button>
+    <button class="tab-btn" data-tab="cold">🧋 Cold Drinks</button>
+  </div>
+
+  <div class="menu-grid" id="menuGrid">
+
+    <!-- COFFEE -->
+    <div class="menu-card active" data-cat="coffee">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80" alt="Espresso" loading="lazy" />
+        <span class="menu-card-badge">Bestseller</span>
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Classic Espresso</h3>
+        <p class="menu-card-desc">Double shot of our signature dark roast – intense, velvety, and pure.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹180</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-card active" data-cat="coffee">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600&q=80" alt="Cappuccino" loading="lazy" />
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Velvet Cappuccino</h3>
+        <p class="menu-card-desc">Silky microfoam with espresso – our barista's pride, served with latte art.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹220</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-card active" data-cat="coffee">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600&q=80" alt="Latte" loading="lazy" />
+        <span class="menu-card-badge">New</span>
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Caramel Noir Latte</h3>
+        <p class="menu-card-desc">Our house specialty – espresso, steamed milk, and house-made caramel sauce.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹280</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-card active" data-cat="coffee">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600&q=80" alt="Pour Over" loading="lazy" />
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Ethiopian Pour Over</h3>
+        <p class="menu-card-desc">Single origin, fruity and floral notes. Brewed slow, served with purpose.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹320</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESSERTS -->
+    <div class="menu-card" data-cat="desserts">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=80" alt="Tiramisu" loading="lazy" />
+        <span class="menu-card-badge">Chef's Pick</span>
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Italian Tiramisu</h3>
+        <p class="menu-card-desc">Classic recipe with Savoiardi, mascarpone, and espresso-soaked layers.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹340</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-card" data-cat="desserts">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?w=600&q=80" alt="Cheesecake" loading="lazy" />
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Burnt Basque Cheesecake</h3>
+        <p class="menu-card-desc">Creamy center, caramelized top – a love story between fire and cream.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹360</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-card" data-cat="desserts">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1553830591-d8632a99e6ff?w=600&q=80" alt="Waffles" loading="lazy" />
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Belgian Waffles</h3>
+        <p class="menu-card-desc">Crispy golden waffles with berry compote, whipped cream & maple drizzle.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹390</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-card" data-cat="desserts">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&q=80" alt="Brownie" loading="lazy" />
+        <span class="menu-card-badge">Popular</span>
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Dark Chocolate Brownie</h3>
+        <p class="menu-card-desc">Dense, fudgy, served warm with a scoop of vanilla bean ice cream.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹290</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SNACKS -->
+    <div class="menu-card" data-cat="snacks">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1587314168485-3236d6710814?w=600&q=80" alt="Croissant" loading="lazy" />
+        <span class="menu-card-badge">Freshly Baked</span>
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Butter Croissant</h3>
+        <p class="menu-card-desc">Laminated dough, 48-hour ferment, baked fresh every morning at 7 AM.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹160</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-card" data-cat="snacks">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1528736235302-52922df5c122?w=600&q=80" alt="Avocado Toast" loading="lazy" />
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Avocado Toast Royale</h3>
+        <p class="menu-card-desc">Sourdough, smashed avo, poached egg, chili flakes, everything bagel seasoning.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹380</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-card" data-cat="snacks">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&q=80" alt="Sandwich" loading="lazy" />
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Grilled Panini</h3>
+        <p class="menu-card-desc">Sundried tomato, fresh mozzarella, basil pesto on stone-baked ciabatta.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹420</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-card" data-cat="snacks">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80" alt="Muffin" loading="lazy" />
+        <span class="menu-card-badge">Vegan</span>
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Blueberry Bran Muffin</h3>
+        <p class="menu-card-desc">Moist, bursting with wild blueberries. 100% plant-based and guilt-free.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹180</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLD DRINKS -->
+    <div class="menu-card" data-cat="cold">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=600&q=80" alt="Cold Brew" loading="lazy" />
+        <span class="menu-card-badge">Bestseller</span>
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Midnight Cold Brew</h3>
+        <p class="menu-card-desc">18-hour steeped Colombian beans, smooth and bold over hand-chipped ice.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹260</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-card" data-cat="cold">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80" alt="Matcha" loading="lazy" />
+        <span class="menu-card-badge">New</span>
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Iced Matcha Latte</h3>
+        <p class="menu-card-desc">Ceremonial grade matcha, oat milk, honey – the perfect morning ritual.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹300</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-card" data-cat="cold">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1625865408890-3bf02e0b70e0?w=600&q=80" alt="Frappe" loading="lazy" />
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Caramel Frappe</h3>
+        <p class="menu-card-desc">Blended cold brew, caramel, cream, topped with gold caramel drizzle.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹340</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-card" data-cat="cold">
+      <div class="menu-card-img">
+        <img src="https://images.unsplash.com/photo-1598679253544-2c97992403ea?w=600&q=80" alt="Lemonade" loading="lazy" />
+        <span class="menu-card-badge">Seasonal</span>
+      </div>
+      <div class="menu-card-body">
+        <h3 class="menu-card-name">Lavender Lemonade</h3>
+        <p class="menu-card-desc">House-pressed lemon, lavender syrup, sparkling water. Refreshing & floral.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">₹240</span>
+          <button class="menu-add-btn" onclick="showToast('Added to order!')">+</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     PARALLAX STRIP
+============================================================ -->
+<div class="parallax-strip" id="parallaxStrip">
+  <div class="parallax-strip-bg" id="parallaxBg"></div>
+  <div class="parallax-strip-overlay"></div>
+  <div class="parallax-strip-content reveal">
+    <blockquote>
+      "Coffee is not just a beverage — it is a ritual,<br />a moment of presence, a conversation with oneself."
+    </blockquote>
+    <cite>— Café Noir Philosophy</cite>
+  </div>
+</div>
+
+<!-- ============================================================
+     ABOUT
+============================================================ -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-visual reveal left">
+      <div class="about-img-main">
+        <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&q=80" alt="Inside Café Noir" loading="lazy" />
+      </div>
+      <div class="about-img-float">
+        <img src="https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=600&q=80" alt="Coffee crafting" loading="lazy" />
+      </div>
+      <div class="about-years">
+        <strong>5+</strong>
+        <span>Years of<br/>Craft</span>
+      </div>
+    </div>
+
+    <div class="about-text reveal right">
+      <p class="section-tag">Our Story</p>
+      <h2 class="section-title">Born from a<br /><em>Passion</em> for<br />the Perfect Cup</h2>
+      <div class="section-divider"></div>
+      <p class="section-body">
+        Café Noir began with a single dream: to create a space where time slows down and every cup carries the story of the hands that grew and roasted the beans. Nestled in the heart of New Delhi, we opened our doors in 2019 — and haven't stopped brewing since.
+      </p>
+      <p class="section-body" style="margin-top:16px;">
+        We work directly with single-origin farms in Ethiopia, Colombia, and Coorg — ensuring every sip is traceable, ethical, and extraordinary. Our baristas are trained at world-class academies so your experience is always consistent, always exceptional.
+      </p>
+
+      <div class="about-quote reveal d2">
+        <p>"We don't just serve coffee — we curate mornings, afternoons, and quiet late evenings."</p>
+        <cite>— Rohan Mehta, Founder</cite>
+      </div>
+
+      <div class="about-stats reveal d3">
+        <div class="stat-item">
+          <span class="stat-num" data-count="50000">0</span>
+          <span class="stat-label">Cups Served</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" data-count="12">0</span>
+          <span class="stat-label">Bean Origins</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" data-count="4">0</span>
+          <span class="stat-label">Awards Won</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     GALLERY
+============================================================ -->
+<section id="gallery">
+  <div class="gallery-header">
+    <p class="section-tag reveal">Visual Stories</p>
+    <h2 class="section-title reveal d1">The <em>Atmosphere</em></h2>
+    <div class="section-divider reveal d2" style="margin:20px auto 0;"></div>
+    <p class="section-body reveal d3" style="margin:16px auto 0; text-align:center;">Step inside before you step inside. Our gallery captures the warmth, craft, and beauty of every corner.</p>
+  </div>
+
+  <div class="masonry-grid">
+    <div class="masonry-item reveal">
+      <img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=600&q=80" alt="Cafe interior" loading="lazy" />
+      <div class="masonry-overlay" onclick="openLightbox(this)">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </div>
+    </div>
+    <div class="masonry-item reveal d1">
+      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" alt="Latte art" loading="lazy" />
+      <div class="masonry-overlay" onclick="openLightbox(this)">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </div>
+    </div>
+    <div class="masonry-item reveal d2">
+      <img src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&q=80" alt="Coffee cups" loading="lazy" />
+      <div class="masonry-overlay" onclick="openLightbox(this)">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </div>
+    </div>
+    <div class="masonry-item reveal d3">
+      <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80" alt="Barista at work" loading="lazy" />
+      <div class="masonry-overlay" onclick="openLightbox(this)">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </div>
+    </div>
+    <div class="masonry-item reveal">
+      <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80" alt="Cozy corner" loading="lazy" />
+      <div class="masonry-overlay" onclick="openLightbox(this)">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </div>
+    </div>
+    <div class="masonry-item reveal d1">
+      <img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=600&q=80" alt="Coffee bags" loading="lazy" />
+      <div class="masonry-overlay" onclick="openLightbox(this)">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </div>
+    </div>
+    <div class="masonry-item reveal d2">
+      <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80" alt="Cafe vibe" loading="lazy" />
+      <div class="masonry-overlay" onclick="openLightbox(this)">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </div>
+    </div>
+    <div class="masonry-item reveal d3">
+      <img src="https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=600&q=80" alt="Desserts" loading="lazy" />
+      <div class="masonry-overlay" onclick="openLightbox(this)">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carousel -->
+  <div class="carousel-wrap reveal d2">
+    <div class="carousel-track" id="carouselTrack">
+      <div class="carousel-slide"><img src="https://images.unsplash.com/photo-1531417666976-ed2bdbbd2f35?w=900&q=80" alt="slide1" loading="lazy" /></div>
+      <div class="carousel-slide"><img src="https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=900&q=80" alt="slide2" loading="lazy" /></div>
+      <div class="carousel-slide"><img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=900&q=80" alt="slide3" loading="lazy" /></div>
+      <div class="carousel-slide"><img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=900&q=80" alt="slide4" loading="lazy" /></div>
+      <div class="carousel-slide"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=900&q=80" alt="slide5" loading="lazy" /></div>
+    </div>
+    <div class="carousel-btns">
+      <button class="carousel-btn" id="carouselPrev">&#8592;</button>
+      <button class="carousel-btn" id="carouselNext">&#8594;</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     OFFERS
+============================================================ -->
+<section id="offers">
+  <p class="section-tag reveal" style="text-align:center;">Limited Time</p>
+  <h2 class="section-title reveal d1" style="text-align:center;">Special <em>Offers</em></h2>
+  <div class="section-divider reveal d2" style="margin:20px auto 36px;"></div>
+
+  <div class="offers-grid">
+
+    <div class="offer-card reveal">
+      <div class="offer-card-bg" style="background-image:url('https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=900&q=80')"></div>
+      <div class="offer-card-overlay"></div>
+      <div class="offer-card-content">
+        <span class="offer-tag">Happy Hours</span>
+        <h3 class="offer-title">3–5 PM Coffee Happy Hour</h3>
+        <p class="offer-desc">Any espresso-based drink at ₹99. Mon–Fri only.</p>
+        <div class="offer-price"><del>₹220</del> ₹99</div>
+      </div>
+    </div>
+
+    <div class="offer-card reveal d2">
+      <div class="offer-card-bg" style="background-image:url('https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=900&q=80')"></div>
+      <div class="offer-card-overlay"></div>
+      <div class="offer-card-content">
+        <span class="offer-tag">Weekend Brunch</span>
+        <h3 class="offer-title">Brunch for Two</h3>
+        <p class="offer-desc">2 coffees + 2 mains + dessert to share. Saturdays & Sundays.</p>
+        <div class="offer-price"><del>₹1400</del> ₹999</div>
+      </div>
+    </div>
+
+    <div class="offer-card reveal d3">
+      <div class="offer-card-bg" style="background-image:url('https://images.unsplash.com/photo-1473215120-29a6283a1ba9?w=900&q=80')"></div>
+      <div class="offer-card-overlay"></div>
+      <div class="offer-card-content">
+        <span class="offer-tag">Loyalty</span>
+        <h3 class="offer-title">Buy 9, Get 1 Free</h3>
+        <p class="offer-desc">Join our Noir Loyalty Card. Stamp 9 coffees, next one's on us.</p>
+        <div class="offer-price">Free Reward</div>
+      </div>
+    </div>
+
+    <div class="offer-card reveal d4">
+      <div class="offer-card-bg" style="background-image:url('https://images.unsplash.com/photo-1516802273409-68526ee1bdd6?w=900&q=80')"></div>
+      <div class="offer-card-overlay"></div>
+      <div class="offer-card-content">
+        <span class="offer-tag">Student</span>
+        <h3 class="offer-title">Student Discount – 20% Off</h3>
+        <p class="offer-desc">Show valid college ID. Applicable on all beverages and food.</p>
+        <div class="offer-price">20% Off</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     TESTIMONIALS
+============================================================ -->
+<section id="testimonials">
+  <p class="section-tag reveal">What People Say</p>
+  <h2 class="section-title reveal d1">Loved by <em>Thousands</em></h2>
+  <div class="section-divider reveal d2" style="margin:20px auto 0;"></div>
+
+  <div class="testi-carousel">
+    <div class="testi-track" id="testiTrack">
+
+      <div class="testi-slide">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">"Café Noir is my second home. The ambience is cinematic, the coffee is extraordinary, and the staff make you feel like royalty. I've tried cafes in 12 cities — this tops every list."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80" alt="Priya Sharma" />
+          </div>
+          <span class="testi-name">Priya Sharma</span>
+          <span class="testi-role">Food Blogger, @tasteofindia</span>
+        </div>
+      </div>
+
+      <div class="testi-slide">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">"The pour over here changed my relationship with coffee. They took 8 minutes to brew it and explained every step. I came back the next day. And the day after that."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80" alt="Arjun Kapoor" />
+          </div>
+          <span class="testi-name">Arjun Kapoor</span>
+          <span class="testi-role">Architect, Delhi</span>
+        </div>
+      </div>
+
+      <div class="testi-slide">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">"Visited with a client for a casual meeting — stayed for 4 hours. The burnt cheesecake is a religious experience. The lighting is perfect for conversation. Will return forever."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80" alt="Neha Joshi" />
+          </div>
+          <span class="testi-name">Neha Joshi</span>
+          <span class="testi-role">Startup Founder, Gurgaon</span>
+        </div>
+      </div>
+
+      <div class="testi-slide">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">"As a coffee professional, I'm always skeptical. But Café Noir's single-origin range is curated with real knowledge. The Ethiopian pour-over had notes I haven't tasted outside of SCA competitions."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">
+            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80" alt="Siddharth Rao" />
+          </div>
+          <span class="testi-name">Siddharth Rao</span>
+          <span class="testi-role">Coffee Consultant, Bangalore</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="testi-dots" id="testiDots">
+    <div class="testi-dot active" onclick="goToSlide(0)"></div>
+    <div class="testi-dot" onclick="goToSlide(1)"></div>
+    <div class="testi-dot" onclick="goToSlide(2)"></div>
+    <div class="testi-dot" onclick="goToSlide(3)"></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     INSTAGRAM
+============================================================ -->
+<section id="instagram">
+  <div class="insta-header reveal">
+    <div>
+      <p class="section-tag">Social</p>
+      <h2 class="section-title">Follow <em>Our Story</em></h2>
+    </div>
+    <a href="https://instagram.com/cafenoir.delhi" target="_blank" class="insta-handle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+        <circle cx="12" cy="12" r="4"/>
+        <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
+      </svg>
+      @cafenoir.delhi
+    </a>
+  </div>
+
+  <div class="insta-grid reveal d2">
+    <div class="insta-item">
+      <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&q=80" alt="insta1" loading="lazy" />
+      <div class="insta-overlay">❤ 842 &nbsp;&nbsp; 💬 34</div>
+    </div>
+    <div class="insta-item">
+      <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=80" alt="insta2" loading="lazy" />
+      <div class="insta-overlay">❤ 1.2K &nbsp;&nbsp; 💬 67</div>
+    </div>
+    <div class="insta-item">
+      <img src="https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=400&q=80" alt="insta3" loading="lazy" />
+      <div class="insta-overlay">❤ 965 &nbsp;&nbsp; 💬 41</div>
+    </div>
+    <div class="insta-item">
+      <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?w=400&q=80" alt="insta4" loading="lazy" />
+      <div class="insta-overlay">❤ 2.1K &nbsp;&nbsp; 💬 88</div>
+    </div>
+    <div class="insta-item">
+      <img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400&q=80" alt="insta5" loading="lazy" />
+      <div class="insta-overlay">❤ 743 &nbsp;&nbsp; 💬 29</div>
+    </div>
+    <div class="insta-item">
+      <img src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&q=80" alt="insta6" loading="lazy" />
+      <div class="insta-overlay">❤ 1.8K &nbsp;&nbsp; 💬 73</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CONTACT
+============================================================ -->
+<section id="contact">
+  <div style="max-width:1280px; margin:0 auto;">
+    <p class="section-tag reveal">Find Us</p>
+    <h2 class="section-title reveal d1">Come <em>Visit</em> Us</h2>
+    <div class="section-divider reveal d2"></div>
+  </div>
+
+  <div class="contact-grid">
+    <div class="contact-info">
+
+      <div class="contact-item reveal">
+        <div class="contact-icon">📍</div>
+        <div>
+          <div class="contact-label">Address</div>
+          <div class="contact-text">23, Hauz Khas Village,<br />New Delhi – 110016</div>
+        </div>
+      </div>
+
+      <div class="contact-item reveal d1">
+        <div class="contact-icon">🕙</div>
+        <div>
+          <div class="contact-label">Hours</div>
+          <div class="contact-text">
+            Mon – Fri: 10:00 AM – 10:00 PM<br />
+            Sat – Sun: 09:00 AM – 11:00 PM
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-item reveal d2">
+        <div class="contact-icon">📞</div>
+        <div>
+          <div class="contact-label">Phone</div>
+          <div class="contact-text">
+            <a href="tel:+911234567890">+91 12345 67890</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-item reveal d3">
+        <div class="contact-icon">✉</div>
+        <div>
+          <div class="contact-label">Email</div>
+          <div class="contact-text">
+            <a href="mailto:hello@cafenoir.in">hello@cafenoir.in</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div class="contact-form reveal d4">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Your Name</label>
+            <input type="text" placeholder="Rohan Mehta" />
+          </div>
+          <div class="form-group">
+            <label>Phone / Email</label>
+            <input type="text" placeholder="+91 98765 43210" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea rows="4" placeholder="Table reservation, event booking, feedback..."></textarea>
+        </div>
+        <button class="form-submit" onclick="showToast('Message sent! We\'ll get back to you soon ☕')">
+          Send Message &nbsp;→
+        </button>
+      </div>
+    </div>
+
+    <div class="reveal right d2">
+      <div class="map-wrap">
+        <iframe
+          src="https://maps.google.com/maps?q=Hauz+Khas+Village+New+Delhi&t=&z=15&ie=UTF8&iwloc=&output=embed"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand-logo">Café <span>Noir</span></div>
+      <p class="footer-about">A sanctuary of warmth, craft, and community. Every cup is a story waiting to be told. Come as you are. Stay as long as you like.</p>
+      <div class="footer-socials">
+        <a href="#" class="social-link" title="Instagram">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="#" class="social-link" title="Facebook">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="#" class="social-link" title="Twitter/X">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4l16 16M4 20L20 4"/></svg>
+        </a>
+        <a href="#" class="social-link" title="YouTube">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m22 8-3-3-3 3m3-3v13M2 17l3 3 3-3m-3 3V7"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Navigate</div>
+      <div class="footer-links">
+        <a href="#menu">Menu</a>
+        <a href="#about">Our Story</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#offers">Offers</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Menu</div>
+      <div class="footer-links">
+        <a href="#menu">Coffee & Espresso</a>
+        <a href="#menu">Cold Drinks</a>
+        <a href="#menu">Desserts</a>
+        <a href="#menu">Snacks & Food</a>
+        <a href="#offers">Special Offers</a>
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Hours</div>
+      <div>
+        <div class="footer-hours-item"><span class="day">Mon – Fri</span><span class="time">10AM – 10PM</span></div>
+        <div class="footer-hours-item"><span class="day">Saturday</span><span class="time">9AM – 11PM</span></div>
+        <div class="footer-hours-item"><span class="day">Sunday</span><span class="time">9AM – 11PM</span></div>
+      </div>
+      <div style="margin-top:24px;">
+        <div class="footer-col-title">Contact</div>
+        <div class="footer-links">
+          <a href="tel:+911234567890">+91 12345 67890</a>
+          <a href="mailto:hello@cafenoir.in">hello@cafenoir.in</a>
+          <span style="color:rgba(240,230,211,0.35); font-size:0.85rem;">Hauz Khas Village, New Delhi</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2024 Café Noir. All rights reserved.</span>
+    <span>Made with ☕ in New Delhi</span>
+    <span>
+      <a href="#" style="transition:color 0.2s;" onmouseover="this.style.color='#c4843a'" onmouseout="this.style.color=''">Privacy Policy</a>
+      &nbsp;·&nbsp;
+      <a href="#" style="transition:color 0.2s;" onmouseover="this.style.color='#c4843a'" onmouseout="this.style.color=''">Terms</a>
+    </span>
+  </div>
+</footer>
+
+<!-- ============================================================
+     FLOATING BUTTONS
+============================================================ -->
+<div class="float-wrap">
+  <button class="float-btn float-scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+  <a href="https://wa.me/911234567890?text=Hi%20Café%20Noir!%20I'd%20like%20to%20place%20an%20order." class="float-btn float-whatsapp" title="Order on WhatsApp" target="_blank">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  </a>
+</div>
+
+<!-- ============================================================
+     LIGHTBOX
+============================================================ -->
+<div id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">×</button>
+  <img id="lightboxImg" src="" alt="Gallery" />
+</div>
+
+<!-- ============================================================
+     TOAST
+============================================================ -->
+<div id="toast"></div>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+/* ---- CURSOR ---- */
+const dot  = document.getElementById('cursor-dot');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+(function animateCursor() {
+  rx += (mx - rx) * 0.14;
+  ry += (my - ry) * 0.14;
+  dot.style.transform  = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
+  ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+  requestAnimationFrame(animateCursor);
+})();
+
+/* ---- PRELOADER ---- */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('preloader').classList.add('done');
+    document.body.classList.remove('loading');
+  }, 2200);
+});
+
+/* ---- NAV SCROLL ---- */
+const nav = document.getElementById('nav');
+const scrollTopBtn = document.getElementById('scrollTopBtn');
+
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  nav.classList.toggle('scrolled', y > 60);
+  scrollTopBtn.classList.toggle('show', y > 400);
+  parallaxEffect(y);
+});
+
+/* ---- HAMBURGER / MOBILE MENU ---- */
+const hamburger  = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobile-menu');
+let menuOpen = false;
+
+hamburger.addEventListener('click', () => {
+  menuOpen = !menuOpen;
+  mobileMenu.classList.toggle('open', menuOpen);
+  const spans = hamburger.querySelectorAll('span');
+  if (menuOpen) {
+    spans[0].style.transform = 'translateY(6.5px) rotate(45deg)';
+    spans[1].style.opacity   = '0';
+    spans[2].style.transform = 'translateY(-6.5px) rotate(-45deg)';
+  } else {
+    spans.forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+  }
+});
+
+function closeMobile() {
+  menuOpen = false;
+  mobileMenu.classList.remove('open');
+  hamburger.querySelectorAll('span').forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+}
+
+/* ---- MENU TABS ---- */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.tab;
+    document.querySelectorAll('.menu-card').forEach(card => {
+      const show = card.dataset.cat === cat;
+      card.classList.toggle('active', show);
+      if (show) {
+        card.style.animation = 'scaleIn 0.4s var(--ease-out) both';
+        setTimeout(() => card.style.animation = '', 500);
+      }
+    });
+  });
+});
+
+/* ---- SCROLL REVEAL ---- */
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('active');
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+/* ---- COUNTER ANIMATION ---- */
+function animateCounter(el) {
+  const target = parseInt(el.dataset.count);
+  const dur    = 2000;
+  const start  = performance.now();
+  const suffix = target >= 1000 ? '+' : '+';
+  (function update(now) {
+    const t   = Math.min((now - start) / dur, 1);
+    const val = Math.round(easeOutQuart(t) * target);
+    el.textContent = target >= 1000 ? (val >= 1000 ? Math.floor(val/1000)+'k' : val) + '+' : val + '+';
+    if (t < 1) requestAnimationFrame(update);
+  })(start);
+}
+function easeOutQuart(t) { return 1 - Math.pow(1-t, 4); }
+
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      animateCounter(e.target);
+      counterObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('[data-count]').forEach(el => counterObserver.observe(el));
+
+/* ---- PARALLAX ---- */
+function parallaxEffect(y) {
+  const bg = document.getElementById('parallaxBg');
+  if (bg) {
+    const strip = document.getElementById('parallaxStrip');
+    const rect  = strip.getBoundingClientRect();
+    const rel   = (rect.top + rect.height / 2) / window.innerHeight;
+    bg.style.transform = `translateY(${(rel - 0.5) * 60}px)`;
+  }
+}
+
+/* ---- CAROUSEL ---- */
+const carouselTrack = document.getElementById('carouselTrack');
+const slides = carouselTrack.children;
+let carouselIndex = 0;
+
+function getSlidesPerView() {
+  return window.innerWidth < 640 ? 1 : window.innerWidth < 1100 ? 2 : 3;
+}
+
+function updateCarousel() {
+  const perView  = getSlidesPerView();
+  const maxIndex = slides.length - perView;
+  carouselIndex  = Math.min(Math.max(carouselIndex, 0), maxIndex);
+  const slideW   = slides[0].getBoundingClientRect().width + 20;
+  carouselTrack.style.transform = `translateX(-${carouselIndex * slideW}px)`;
+}
+
+document.getElementById('carouselNext').addEventListener('click', () => { carouselIndex++; updateCarousel(); });
+document.getElementById('carouselPrev').addEventListener('click', () => { carouselIndex--; updateCarousel(); });
+window.addEventListener('resize', updateCarousel);
+
+/* ---- TESTIMONIALS AUTO-SLIDE ---- */
+const testiTrack = document.getElementById('testiTrack');
+const testiDots  = document.querySelectorAll('.testi-dot');
+let testiIndex   = 0;
+let testiTimer;
+
+function goToSlide(i) {
+  testiIndex = i;
+  testiTrack.style.transform = `translateX(-${i * 100}%)`;
+  testiDots.forEach((d, idx) => d.classList.toggle('active', idx === i));
+  clearTimeout(testiTimer);
+  testiTimer = setTimeout(nextSlide, 5000);
+}
+
+function nextSlide() {
+  goToSlide((testiIndex + 1) % testiDots.length);
+}
+
+testiTimer = setTimeout(nextSlide, 5000);
+
+/* ---- LIGHTBOX ---- */
+function openLightbox(overlay) {
+  const img = overlay.previousElementSibling;
+  document.getElementById('lightboxImg').src = img.src;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeLightbox();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeLightbox();
+});
+
+/* ---- TOAST ---- */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ---- ACTIVE NAV LINK HIGHLIGHTING ---- */
+const sections = document.querySelectorAll('section[id]');
+const navLinks  = document.querySelectorAll('.nav-links a');
+
+const sectionObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(a => {
+        a.style.color = a.getAttribute('href') === '#' + e.target.id ? 'var(--gold)' : '';
+      });
+    }
+  });
+}, { threshold: 0.4 });
+
+sections.forEach(s => sectionObserver.observe(s));
+</script>
+</body>
+</html>
